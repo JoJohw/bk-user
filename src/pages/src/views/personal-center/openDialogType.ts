@@ -13,24 +13,24 @@ export enum OpenDialogSelect {
   custom = 'custom',
 };
 
-export enum openDialogResult {
+export enum OpenDialogResult {
   success = 'success',
   fail = 'danger'
 };
 
-export enum emailEidtable {
+export enum EmailEditable {
   YES = 'editable_directly',
   Verify = 'need_verify',
   No = 'not_editable'
 };
 
-export enum phoneEidtable {
+export enum PhoneEditable {
   YES = 'editable_directly',
   Verify = 'need_verify',
   No = 'not_editable',
 };
 
-export enum formItemPropName {
+export enum FormItemPropName {
   inheritEmail = 'inherit-email',
   inheritPhone = 'inherit-phone',
   customEmail = 'custom-email',

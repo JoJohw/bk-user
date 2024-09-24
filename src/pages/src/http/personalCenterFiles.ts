@@ -2,25 +2,33 @@ import { AxiosRequestConfig } from 'axios';
 
 import http from './fetch';
 import type {
+  CurrentNaturalUser,
   PatchUserEmailParams,
   PatchUserLogoParams,
   PatchUserPhoneParams,
+  PersonalCenterUserFeature,
+  PersonalCenterUsers,
+  PersonalCenterUserVisibleFields,
   postPersonalCenterUserEmailCaptchaParams,
   postPersonalCenterUserPhoneCaptchaParams,
   PutUserPasswordParams,
 } from './types/personalCenterFiles';
 interface Config extends AxiosRequestConfig {
   globalError?: boolean
-}
+};
+
+interface ResponseData<T> {
+  data: T
+};
 /**
  *个人中心-关联账户列表
  */
-export const getCurrentNaturalUser = () => http.get('/api/v3/web/personal-center/current-natural-user/');
+export const getCurrentNaturalUser = () => http.get<ResponseData<CurrentNaturalUser>>('/api/v3/web/personal-center/current-natural-user/');
 
 /**
  * 个人中心-关联账户详情
  */
-export const getPersonalCenterUsers = (id: string) => http.get(`/api/v3/web/personal-center/tenant-users/${id}/`);
+export const getPersonalCenterUsers = (id: string) => http.get<ResponseData<PersonalCenterUsers>>(`/api/v3/web/personal-center/tenant-users/${id}/`);
 
 /**
  * 租户用户更新邮箱
@@ -40,7 +48,7 @@ export const patchTenantUsersLogo = (params: PatchUserLogoParams) => http.put(`/
 /**
  * 个人中心-用户可见字段列表
  */
-export const getPersonalCenterUserVisibleFields = (id: string) => http.get(`/api/v3/web/personal-center/tenant-users/${id}/fields/`);
+export const getPersonalCenterUserVisibleFields = (id: string) => http.get<ResponseData<PersonalCenterUserVisibleFields>>(`/api/v3/web/personal-center/tenant-users/${id}/fields/`);
 
 /**
  * 修改用户自定义字段
@@ -65,7 +73,7 @@ export const putPersonalCenterUserPassword = (params: PutUserPasswordParams) => 
 /**
  * 个人中心-用户功能特性-当前用户是否支持修改密码
  */
-export const getPersonalCenterUserFeature = (id: string) => http.get(`/api/v3/web/personal-center/tenant-users/${id}/feature-flags/`);
+export const getPersonalCenterUserFeature = (id: string) => http.get<ResponseData<PersonalCenterUserFeature>>(`/api/v3/web/personal-center/tenant-users/${id}/feature-flags/`);
 
 /**
  * 个人中心-租户修改手机号时，发送验证码

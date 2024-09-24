@@ -67,7 +67,6 @@
               theme="picture"
               with-credentials
               :multiple="false"
-              :files="files"
               :handle-res-code="handleRes"
               :url="currentUserInfo.logo"
               :custom-request="customRequest"
@@ -79,7 +78,7 @@
                 <div class="logo-box" v-if="currentUserInfo.logo">
                   <img :src="currentUserInfo.logo" />
                   <div class="logo-hover">
-                    <i class="user-icon icon-edit" @click="customRequest" />
+                    <i class="user-icon icon-edit" />
                   </div>
                 </div>
                 <i v-else class="user-icon icon-yonghu" />
@@ -170,7 +169,7 @@
                         <bk-button
                           text theme="primary" class="ml-[12px] mr-[12px]"
                           @click="changeEmail"
-                          v-if="emailUpdateRestriction === emailEidtable.YES
+                          v-if="emailUpdateRestriction === EmailEditable.YES
                             || emailSelect === OpenDialogSelect.inherit">
                           {{ $t('确定') }}
                         </bk-button>
@@ -184,7 +183,7 @@
                               phone_country_code: ''
                             }
                           )"
-                          v-if="emailUpdateRestriction === emailEidtable.Verify
+                          v-if="emailUpdateRestriction === EmailEditable.Verify
                             && emailSelect === OpenDialogSelect.custom">
                           {{ $t('验证') }}
                         </bk-button>
@@ -202,7 +201,7 @@
                             : currentUserInfo.custom_email }}
                         </span>
                         <i
-                          v-if="emailUpdateRestriction !== emailEidtable.No"
+                          v-if="emailUpdateRestriction !== EmailEditable.No"
                           class="user-icon icon-edit"
                           @click="isEditEmail = true">
                         </i>
@@ -247,7 +246,7 @@
                         <bk-button
                           text theme="primary" class="ml-[12px] mr-[12px]"
                           @click="changePhone"
-                          v-if="phoneUpdateRestriction === phoneEidtable.YES
+                          v-if="phoneUpdateRestriction === PhoneEditable.YES
                             || phoneSelect === OpenDialogSelect.inherit">
                           {{ $t('确定') }}
                         </bk-button>
@@ -260,7 +259,7 @@
                               phone_country_code: currentUserInfo.custom_phone_country_code
                             }
                           )"
-                          v-if="phoneUpdateRestriction === phoneEidtable.Verify
+                          v-if="phoneUpdateRestriction === PhoneEditable.Verify
                             && phoneSelect === OpenDialogSelect.custom">
                           {{ $t('验证') }}
                         </bk-button>
@@ -278,7 +277,7 @@
                             : currentUserInfo.custom_phone }}
                         </span>
                         <i
-                          v-if="phoneUpdateRestriction !== phoneEidtable.No"
+                          v-if="phoneUpdateRestriction !== PhoneEditable.No"
                           class="user-icon icon-edit"
                           @click="isEditPhone = true">
                         </i>
@@ -306,7 +305,7 @@
               <!-- 自定义字段 -->
               <div class="item-flex">
                 <li
-                  v-for="(item, index) in currentUserInfo.extras"
+                  v-for="(item, index) in currentUserInfo.extras as PersonalCenterUserVisibleFields['custom_fields']"
                   :key="index"
                 >
                   <bk-overflow-title class="key" type="tips">
@@ -342,7 +341,7 @@
                         :clearable="item.data_type === 'multi_enum'"
                         :multiple="item.data_type === 'multi_enum'"
                         @blur="customBlur(item)"
-                        @change="changeSelect(item, index)"
+                        @change="changeSelect(item)"
                         @clear="clearSelect(item)">
                         <bk-option
                           v-for="(option, i) in item.options"
@@ -442,7 +441,7 @@
 import { bkTooltips as vBkTooltips, Message } from 'bkui-vue';
 import { computed, inject, nextTick, onMounted, reactive, ref, watch } from 'vue';
 
-import { emailEidtable, OpenDialogSelect, OpenDialogType, phoneEidtable  } from './openDialogType';
+import { EmailEditable, OpenDialogSelect, OpenDialogType, PhoneEditable  } from './openDialogType';
 import verifyIdentityInfoDialog from './verifyIdentityInfoDialog.vue';
 
 import ChangePassword from '@/components/ChangePassword.vue';
@@ -460,22 +459,59 @@ import {
   putUserLanguage,
   putUserTimeZone,
 } from '@/http';
+import { CurrentNaturalUser, PersonalCenterUsers, PersonalCenterUserVisibleFields, TenantUser } from '@/http/types/personalCenterFiles';
 import { t } from '@/language/index';
 import { useUser } from '@/store/user';
 import { customFieldsMap, formatConvert, getBase64, handleSwitchLocale, LANGUAGE_OPTIONS, TIME_ZONES } from '@/utils';
 
 
+interface CurrentUserInfo extends PersonalCenterUsers{
+  extras: PersonalCenterUsers['extras'] | PersonalCenterUserVisibleFields['custom_fields'];
+}
+
 const user = useUser();
 const userInfo = ref(user.user);
 
 const validate = useValidate();
-const editLeaveBefore = inject('editLeaveBefore');
-const currentNaturalUser = ref({});
+const editLeaveBefore: () => Promise<boolean> = inject('editLeaveBefore');
+const currentNaturalUser = ref<CurrentNaturalUser>({
+  full_name: '',
+  id: '',
+  tenant_users: []
+});
 
 // 当前用户信息
-const currentUserInfo = ref({});
+const currentUserInfo = ref<CurrentUserInfo>({
+  extras: undefined,
+  account_expired_at: '',
+  custom_email: '',
+  custom_phone: '',
+  custom_phone_country_code: '',
+  departments: [],
+  email: '',
+  full_name: '',
+  id: '',
+  is_inherited_email: false,
+  is_inherited_phone: false,
+  language: '',
+  leaders: [],
+  logo: '',
+  phone: '',
+  phone_country_code: '',
+  time_zone: '',
+  username: '',
+});
 // 当前租户信息
-const currentTenantInfo = ref({});
+const currentTenantInfo = ref<TenantUser>({
+  full_name: '',
+  id: '',
+  logo: '',
+  username: '',
+  tenant: {
+    id: '',
+    name: '',
+  },
+});
 
 const isLoading = ref(false);
 const infoLoading = ref(false);
@@ -484,7 +520,14 @@ const isInheritedPhone = ref(true);
 const customEmail = ref('');
 const customPhone = ref('');
 const customPhoneCode = ref('');
-const originalValue = ref({});
+const originalValue = ref<{
+  language: string,
+  time_zone: string,
+  [key: string]: any
+}>({
+  language: '',
+  time_zone: ''
+});
 const rules = {
   custom_email: [validate.required, validate.email],
 };
@@ -494,9 +537,9 @@ const extrasList = ref([]);
 // 是否可以修改密码
 const canChangePassword = ref(false);
 // 是否可以修改邮箱
-const emailUpdateRestriction = ref<emailEidtable>(emailEidtable.Verify);
+const emailUpdateRestriction = ref<EmailEditable>(EmailEditable.Verify);
 // 是否可以修改手机
-const phoneUpdateRestriction = ref<phoneEidtable>(phoneEidtable.Verify);
+const phoneUpdateRestriction = ref<PhoneEditable>(PhoneEditable.Verify);
 
 
 onMounted(() => {
@@ -513,12 +556,12 @@ const getNaturalUser = () => {
   });
 };
 
-const getCurrentUser = async (id) => {
+const getCurrentUser = async (id: string) => {
   try {
     infoLoading.value = true;
     isEditEmail.value = false;
     isEditPhone.value = false;
-    currentNaturalUser.value?.tenant_users.forEach((item) => {
+    currentNaturalUser.value?.tenant_users.forEach((item: TenantUser) => {
       if (item.id === id) {
         currentTenantInfo.value = item;
       }
@@ -535,9 +578,11 @@ const getCurrentUser = async (id) => {
       extras: useCustomFields(userRes.data?.extras, fieldsRes.data.custom_fields),
     };
     canChangePassword.value = featureRes.data.can_change_password;
-    emailUpdateRestriction.value = featureRes.data.email_update_restriction;
-    phoneUpdateRestriction.value = featureRes.data.phone_update_restriction;
-    extrasList.value = [...currentUserInfo.value.extras];
+    emailUpdateRestriction.value = featureRes.data.email_update_restriction as EmailEditable;
+    phoneUpdateRestriction.value = featureRes.data.phone_update_restriction as PhoneEditable;
+    if (Array.isArray(currentUserInfo.value.extras)) {
+      extrasList.value = [...currentUserInfo.value.extras];
+    }
     customEmail.value = userRes.data.custom_email;
     customPhone.value = userRes.data.custom_phone;
     customPhoneCode.value = userRes.data.custom_phone_country_code;
@@ -555,7 +600,7 @@ const getCurrentUser = async (id) => {
 };
 
 // 获取当前编辑框焦点
-const editExtra = (item, index) => {
+const editExtra = (item: any, index: number) => {
   item.isEdit = true;
   if (item.data_type === 'multi_enum' && item.value === '') {
     item.value = [];
@@ -572,24 +617,24 @@ const editExtra = (item, index) => {
   });
 };
 // 失焦校验
-const customBlur = (item) => {
+const customBlur = (item: { error: boolean; value: string | any[]; data_type: string; }) => {
   item.error = item.value === '' || (item.data_type === 'multi_enum' && !item.value.length);
 };
 
-const handleInput = (item) => {
+const handleInput = (item: { error: boolean; }) => {
   item.error = false;
 };
 // 改变枚举值
-const changeSelect = (item) => {
+const changeSelect = (item: { value: any; error: boolean; }) => {
   item.value = item.value;
   item.error = false;
 };
 
-const clearSelect = (item) => {
+const clearSelect = (item: { error: boolean; }) => {
   item.error = true;
 };
 // 提交修改自定义字段
-const changeCustomFields = async (item) => {
+const changeCustomFields = async (item: { error: any; name: any; value: any; isEdit: boolean; }) => {
   try {
     if (item.error) {
       return;
@@ -609,12 +654,12 @@ const changeCustomFields = async (item) => {
   }
 };
 
-const showLanguage = computed(() => (targetValue) => {
+const showLanguage = computed(() => (targetValue: string) => {
   const foundItem = LANGUAGE_OPTIONS?.find(item => item.value === targetValue);
   return foundItem ? foundItem.label : null;
 });
 
-const submitChange  = async (item) => {
+const submitChange  = async (item: { isEdit?: any; model?: any; }) => {
   const { model } = item;
   try {
     if (!currentUserInfo.value[model]) return;
@@ -635,7 +680,7 @@ const submitChange  = async (item) => {
   }
 };
 
-const cancelChange = (item) => {
+const cancelChange = (item: { isEdit: boolean; model: string | number; }) => {
   item.isEdit = false;
   currentUserInfo.value[item.model] = originalValue.value[item.model];
 };
@@ -660,23 +705,23 @@ const LanguageAndTimeZone = ref({
 });
 
 // 取消自定义字段修改
-const cancelCustomFields = (item, index) => {
+const cancelCustomFields = (item: { value: any; isEdit: boolean; error: boolean; }, index: number) => {
   item.value = extrasList.value[index]?.value;
   item.isEdit = false;
   item.error = false;
 };
 
 watch(() => currentUserInfo.value?.extras, (val) => {
-  if (val.length) {
-    const allFalse = val.every(item => !item.isEdit);
+  if (Array.isArray(val) && val.length) {
+    const allFalse = val.every((item: { isEdit: any; }) => !item.isEdit);
     window.changeInput = !(allFalse && isEditEmail.value === false && isEditPhone.value === false);
   }
 }, {
   deep: true,
 });
 
-const tagTheme = value => (value ? 'info' : 'warning');
-const tagText = value => (value ? t('继承数据源') : t('自定义'));
+const tagTheme = (value: any) => (value ? 'info' : 'warning');
+const tagText = (value: any) => (value ? t('继承数据源') : t('自定义'));
 
 const isEditEmail = ref(false);
 
@@ -695,7 +740,7 @@ const toggleEmail = (value: OpenDialogSelect) => {
   nextTick(() => {
     if (!currentInherit) {
       currentUserInfo.value.custom_email = customEmail.value;
-      const emailInput = document.querySelectorAll('.email-input input');
+      const emailInput: NodeListOf<HTMLInputElement> = document.querySelectorAll('.email-input input');
       emailInput[0].focus();
     }
   });
@@ -756,7 +801,7 @@ const togglePhone = (value: OpenDialogSelect) => {
   nextTick(() => {
     if (currentInherit) return telError.value = false;
     currentUserInfo.value.custom_phone = customPhone.value;
-    const phoneInput = document.querySelectorAll('.phone-input input');
+    const phoneInput: NodeListOf<HTMLInputElement> = document.querySelectorAll('.phone-input input');
     phoneInput[0].focus();
   });
 };
@@ -797,7 +842,7 @@ const cancelEditPhone = () => {
   isEditing();
 };
 // 切换关联账号
-const handleClickItem = async (item) => {
+const handleClickItem = async (item: { id: string; }) => {
   let enableLeave = true;
   if (window.changeInput) {
     enableLeave = await editLeaveBefore();
@@ -868,20 +913,22 @@ const curPhone = computed<string>(() => {
   return result === '--' ? '' : result;
 });
 
-const customRequest = (event) => {
+const customRequest = (event: { file: File; }) => {
   getBase64(event.file).then((res) => {
-    currentUserInfo.value.logo = res;
-    patchTenantUsersLogo({
-      id: currentUserInfo.value.id,
-      logo: currentUserInfo.value.logo,
-    });
+    if (typeof res === 'string') {
+      currentUserInfo.value.logo = res;
+      patchTenantUsersLogo({
+        id: currentUserInfo.value.id,
+        logo: currentUserInfo.value.logo,
+      });
+    }
   })
     .catch((e) => {
       console.warn(e);
     });
 };
 
-const handleError = (file) => {
+const handleError = (file: File) => {
   if (file.size > (2 * 1024 * 1024)) {
     Message({ theme: 'error', message: t('图片大小超出限制，请重新上传') });
   }
@@ -889,6 +936,7 @@ const handleError = (file) => {
 
 // 是否是编辑状态
 const isEditing = () => {
+  if (!Array.isArray(currentUserInfo.value?.extras)) return;
   const allFalse = currentUserInfo.value?.extras.every(item => !item.isEdit);
   window.changeInput = !(allFalse && isEditEmail.value === false && isEditPhone.value === false);
 };

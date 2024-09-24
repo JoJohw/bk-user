@@ -18,7 +18,7 @@
         class="ml-[16px] mr-[16px]">
         <bk-form-item
           class="mt-[32px]"
-          v-if="curFormItemList.includes(formItemPropName.customEmail)" property="email">
+          v-if="curFormItemList.includes(FormItemPropName.customEmail)" property="email">
           <bk-input class="!w-[400px] !h-[40px]" :placeholder="t('请输入邮箱以接收邮箱验证码')" v-model="verifyForm.email">
           </bk-input>
         </bk-form-item>
@@ -26,7 +26,7 @@
         <bk-form-item
           class="mt-[32px] h-[40px]"
           property="custom_phone"
-          v-if="curFormItemList.includes(formItemPropName.customPhone)">
+          v-if="curFormItemList.includes(FormItemPropName.customPhone)">
           <phoneInput
             class="!w-[400px] phone-input"
             :form-data="verifyForm"
@@ -39,7 +39,7 @@
         <bk-form-item
           class="mt-[24px] !mb-[0px]"
           property="captcha"
-          v-if="curFormItemList.includes(formItemPropName.captcha)">
+          v-if="curFormItemList.includes(FormItemPropName.captcha)">
           <div class="flex justify-center">
             <bk-input
               :class="`!w-[400px] !h-[40px] ${captchaValidate ? 'captcha-input-validate' : ''}`"
@@ -85,7 +85,7 @@ import { InfoBox, Message, overflowTitle } from 'bkui-vue';
 import type { Props as BkInfoBoxConfig } from 'bkui-vue/lib/info-box/info-box';
 import { computed, defineEmits, defineModel, defineProps, PropType, reactive, ref, watch } from 'vue';
 
-import { formItemPropName, openDialogResult, OpenDialogType } from './openDialogType';
+import { FormItemPropName, OpenDialogResult, OpenDialogType } from './openDialogType';
 
 import phoneInput from '@/components/phoneInput.vue';
 import { useCountDown, useValidate } from '@/hooks';
@@ -134,7 +134,7 @@ const changeCountryCode = (code: string) => {
 const dialogTitle = computed(() => (props.currentVerifyConfig.type === OpenDialogType.email ? t('邮箱验证') : t('手机号验证')));
 
 const curFormItemList = computed(() => {
-  let formItemList = Object.values({ ...formItemPropName });
+  let formItemList = Object.values({ ...FormItemPropName });
   if (props.currentVerifyConfig.type === OpenDialogType.email) {
     formItemList = formItemList.filter(item => !item.includes(OpenDialogType.phone));
   }
@@ -268,7 +268,7 @@ const handleSubmitVerifyForm = async () => {
 
   const { type } = props.currentVerifyConfig;
   const { email, phone } = OpenDialogType;
-  const { success, fail } = openDialogResult;
+  const { success, fail } = OpenDialogResult;
   const infoBoxConfig: Partial<BkInfoBoxConfig> = {
     type: success,
     title: '',
