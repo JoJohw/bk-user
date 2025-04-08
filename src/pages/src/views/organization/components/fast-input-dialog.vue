@@ -91,6 +91,7 @@ import { bkTooltips as vBkTooltips } from 'bkui-vue';
 import { computed, nextTick, ref, watch } from 'vue';
 
 import { useValidate } from '@/hooks';
+import { getFields } from '@/http';
 import { batchCreatePreview, getFieldsTips, operationsCreate } from '@/http/organizationFiles';
 import { t } from '@/language/index';
 import router from '@/router';
@@ -130,6 +131,7 @@ watch(() => props.isShow, async (val) => {
     const res = await getFieldsTips();
     tipsInfo.value = (res.data || []);
     tableData.value = [];
+    initEnumFieldMap();
   }
 });
 const showColumns = computed(() => {
@@ -147,7 +149,11 @@ const handleNext = async () => {
     };
     try {
       const res = await batchCreatePreview(param);
-      tableData.value = res.data.map(item => Object.assign(item, item.extras));
+      // todo 把id转成value
+      const sourceData = res.data.map(item => Object.assign(item, item.extras));
+      const transformData = transformEnumFields(sourceData);
+      tableData.value = transformData;
+      // res.data.map(item => Object.assign(item, item.extras));
       currentId.value += 1;
     } catch (e) {
       console.warn(e);
@@ -156,6 +162,63 @@ const handleNext = async () => {
     }
   }
 };
+
+/** data_type为enum的字段 */
+const enumFieldMap = ref();
+/** data_type为enum的字段，其对应的数据转换方法 */
+const enumFieldLookUp: Record<string, <T extends Array<any>>(value: T) => string> = {};
+/** 初始化enumFieldMap和enumFieldLookUp的数据 */
+const initEnumFieldMap = async () => {
+  const res = await getFields();
+  const ENUM_FIELD = 'enum';
+  const { builtin_fields: builtinFields, custom_fields: customFields } = res.data || {};
+  enumFieldMap.value = [...builtinFields, ...customFields].reduce((map, field) => {
+    if (field.data_type === ENUM_FIELD) {
+      map.set(field.name, field);
+    }
+    return map;
+  }, new Map());
+
+  // 挑选出column中所有的enum
+  for (const column of showColumns.value) {
+    if (enumFieldMap.value.has(column.field)) {
+      enumFieldLookUp[column.field] = (value: Array<any> | number | string): string => {
+        // 支持 enum 结果为多选的清空
+        if (value instanceof Array) {
+          return enumFieldMap.value.get(column.field).reduce((
+            arr: string[],
+            option: {
+              id: any,
+              value: string
+            },
+          ) => {
+            if (value.includes(option.value)) {
+              arr.push(option.value);
+            }
+            return arr;
+          }, [])
+            .join(', ');
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        return enumFieldMap.value.get(column.field).options.find((option: {
+          id: any,
+          value: string
+        }) => option.id === value)?.value;
+      };
+    }
+  }
+};
+/**
+ * 把data_type为Enum的字段，根据其enum id转为enum value 用于预览展示
+ */
+const transformEnumFields = data => data.map((item) => {
+  const curItem: Record<string, any> = {};
+  for (const [key, value] of Object.entries(item)) {
+    curItem[key] = enumFieldLookUp[key]?.(value) || value;
+  }
+  return curItem;
+});
+
 const handlePrev = () => {
   if (currentId.value > 1) {
     currentId.value -= 1;
