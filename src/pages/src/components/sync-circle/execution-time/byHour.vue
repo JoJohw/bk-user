@@ -22,7 +22,7 @@
       </div>
     </bk-form-item>
     <div
-      class="cursor-pointer"
+      class="cursor-pointer inline-block select-none"
       @click="handleMinutePointAdd">
       <i class="user-icon icon-add-2 text-[18px] text-[#3A84FF] mr-[8px]"></i>
       <span class="text-[14px] text-[#3A84FF]">添加分钟点</span>

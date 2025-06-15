@@ -58,3 +58,7 @@ export function deepMerge(...objectArray: object[]) {
 export function timeFormatter(val: string, format = 'YYYY-MM-DD HH:mm:ss') {
   return val ? dayjs(val).format(format) : '--';
 }
+
+export function getTimeStamp(val: string) {
+  return dayjs(val).unix();
+}

@@ -32,12 +32,12 @@
       v-if="syncCycle === 2"
       v-model:value="form.day.executionTime" />
 
-    <ExecutionTimePreview />
+    <ExecutionTimePreview :type="syncCycle" :execution-time="curExecutionTime" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import ByDay from './execution-time/byDay.vue';
 import ByHour from './execution-time/byHour.vue';
@@ -85,6 +85,16 @@ const form = reactive({
     interval: 0,
     executionTime: [DEFAULT_HOUR_BT_DAY],
   },
+});
+
+const curExecutionTime = computed(() => {
+  if (syncCycle.value === 1) {
+    return form.hour.executionTime;
+  }
+  if (syncCycle.value === 2) {
+    return form.day.executionTime;
+  }
+  return [];
 });
 
 const handleSyncCycleChange = (value: SyncCycleType) => {
