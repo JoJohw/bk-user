@@ -11,10 +11,10 @@
       </bk-radio-group>
 
       <div class="ml-[24px] flex items-center">
-        <span>每隔</span>
+        <span>{{ $t('每隔') }}</span>
         <bk-input
           :max="60"
-          :min="0"
+          :min="1"
           v-model="curInterValTime"
           @change="handleIntervalTimeChange"
           type="number"
@@ -32,7 +32,10 @@
       v-if="syncCycle === 2"
       v-model:value="form.day.executionTime" />
 
-    <ExecutionTimePreview :type="syncCycle" :execution-time="curExecutionTime" />
+    <ExecutionTimePreview
+      :type="syncCycle"
+      :interval="curInterValTime"
+      :execution-time="curExecutionTime" />
   </div>
 </template>
 
@@ -42,6 +45,8 @@ import { computed, reactive, ref } from 'vue';
 import ByDay from './execution-time/byDay.vue';
 import ByHour from './execution-time/byHour.vue';
 import ExecutionTimePreview from './execution-time/executionTimePreview.vue';
+
+import { t } from '@/language/index';
 /** 同步周期类型 */
 type SyncCycleType = keyof typeof cycleIntervalSuffixTextMap;
 
@@ -52,37 +57,37 @@ const DEFAULT_HOUR_BT_DAY = '08:00:00';
 const radioOptions = ref([
   {
     id: 0,
-    label: '按分钟',
+    label: t('按分钟'),
   },
   {
     id: 1,
-    label: '按小时',
+    label: t('按小时'),
   },
   {
     id: 2,
-    label: '按天',
+    label: t('按天'),
   },
 ]);
 const cycleIntervalSuffixTextMap = {
-  0: '分钟执行同步',
-  1: '小时执行同步',
-  2: '天执行同步',
+  0: t('分钟执行同步'),
+  1: t('小时执行同步'),
+  2: t('天执行同步'),
 };
 /** 当前选择的同步周期 */
 const syncCycle = ref<SyncCycleType>(0);
 
-const curInterValTime = ref(0);
+const curInterValTime = ref(1);
 /** 已添加的执行时间(小时/天) */
 const form = reactive({
   minute: {
-    interval: 0,
+    interval: 1,
   },
   hour: {
-    interval: 0,
+    interval: 1,
     executionTime: [DEFAULT_MINUTE_BY_HOUR],
   },
   day: {
-    interval: 0,
+    interval: 1,
     executionTime: [DEFAULT_HOUR_BT_DAY],
   },
 });

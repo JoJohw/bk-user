@@ -55,10 +55,6 @@ export function deepMerge(...objectArray: object[]) {
  * @param format 格式
  * @returns 格式化后的时间
  */
-export function timeFormatter(val: string, format = 'YYYY-MM-DD HH:mm:ss') {
+export function timeFormatter(val: string | number | Date, format = 'YYYY-MM-DD HH:mm:ss') {
   return val ? dayjs(val).format(format) : '--';
-}
-
-export function getTimeStamp(val: string) {
-  return dayjs(val).unix();
 }
