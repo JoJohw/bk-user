@@ -280,7 +280,6 @@
       <p class="text-[#3A84FF]" v-dompurify-html="contact"></p>
       <p class="text-[#63656E]">{{ copyright }}</p>
     </footer>
-    <SyncCycle class="mt-[24px]"></SyncCycle>
   </div>
 </template>
 
@@ -295,7 +294,6 @@ import LabelContent from '@/components/layouts/LabelContent.vue';
 import passwordInput from '@/components/passwordInput.vue';
 import PhoneInput from '@/components/phoneInput.vue';
 import Empty from '@/components/SearchEmpty.vue';
-import SyncCycle from '@/components/sync-circle/syncCycle.vue';
 import { useAdminPassword, useInfoBoxContent, useTableMaxHeight, useValidate } from '@/hooks';
 import {
   currentUser,
