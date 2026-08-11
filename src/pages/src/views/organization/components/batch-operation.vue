@@ -368,7 +368,7 @@ watch(() => props.dataSourceId, (dataSourceId) => {
         console.error(e);
       });
   }
-});
+}, { immediate: true });
 
 watch(infoFormData, (val) => {
   val?.customField?.forEach((item) => {
