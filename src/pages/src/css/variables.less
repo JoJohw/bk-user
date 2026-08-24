@@ -5,3 +5,8 @@
   --breadcrumbs-height: 52px; /* 面包屑高度 */
   --tab-height: 36px;         /* 父级 bk-tab 头高度 */
 }
+
+/* iframe 嵌入（subEnv）时无 MainHeader 顶栏，业务组件统一通过该变量适配高度 */
+.iframe-router-view {
+  --header-height: 0px;
+}
