@@ -335,7 +335,7 @@ watch(role, (newRole) => {
 
 <style lang="less" scoped>
 .has-alert {
-  height: calc(100vh - 40px);
+  height: calc(100vh - var(--alert-height));
 }
 
 .main-navigation {
@@ -423,7 +423,7 @@ watch(role, (newRole) => {
 .main-navigation-left {
   margin-left: 20px;
   font-size: 14px;
-  line-height: 52px;
+  line-height: var(--header-height);
 }
 
 .main-navigation-nav {
