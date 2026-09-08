@@ -1,13 +1,13 @@
 <template>
   <div class="details-wrapper">
     <bk-form
-      class="px-[24px] pt-[24px] pb-[60px]"
+      class="px-[24px] pt-[24px] pb-[60px] flex flex-col gap-[16px]"
       form-type="vertical"
       ref="formRef"
       :model="formData"
       :rules="rulesInfo"
       v-bkloading="{ loading: isLoading }">
-      <Row :title="$t('基本信息')">
+      <Row :title="$t('基本信息')" class="!pb-[8px]">
         <bk-form-item :label="$t('名称')" property="name" required>
           <bk-input
             style="width: 600px;"
@@ -29,7 +29,7 @@
         local-only
         @change="handleChange"
       />
-      <Row :title="$t('密码规则')" v-if="formData.config?.password_rule">
+      <Row v-if="formData.config?.password_rule" :title="$t('密码规则')" class="!pb-[8px]">
         <bk-form-item :label="$t('密码长度')" property="config.password_rule.min_length" required>
           <bk-input
             style="width: 200px;"
@@ -88,7 +88,7 @@
           <p class="error-text" v-show="passwordConfigError">{{ $t('至少包含一类连续性场景') }}</p>
         </bk-form-item>
       </Row>
-      <Row :title="$t('初始密码设置')" v-if="formData.config?.password_initial">
+      <Row v-if="formData.config?.password_initial" :title="$t('初始密码设置')" class="!pb-[8px]">
         <bk-form-item label="" required>
           <div class="div-flex">
             <bk-checkbox
@@ -167,7 +167,7 @@
           <p class="error" v-show="enabledMethodsError">{{ $t('通知方式不能为空') }}</p>
         </bk-form-item>
       </Row>
-      <Row :title="$t('登录限制')" v-if="formData.config?.login_limit">
+      <Row v-if="formData.config?.login_limit" :title="$t('登录限制')" class="!pb-[8px]">
         <bk-form-item label="" required>
           <bk-checkbox
             v-model="formData.config.login_limit.force_change_at_first_login"
@@ -197,7 +197,7 @@
           />
         </bk-form-item>
       </Row>
-      <Row :title="$t('密码有效期设置')" v-if="formData.config?.password_expire">
+      <Row v-if="formData.config?.password_expire" :title="$t('密码有效期设置')" class="!pb-[8px]">
         <bk-form-item :label="$t('密码有效期')" required>
           <bk-radio-group v-model="formData.config.password_expire.valid_time" @change="handleChange">
             <bk-radio-button

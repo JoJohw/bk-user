@@ -5,16 +5,16 @@
     :z-index="10"
   >
     <bk-form
+      class="flex flex-col divide-y divide-[#EAEBF0]"
       ref="formRef"
       :model="formModel"
       :rules="conflictRules"
       form-type="vertical"
     >
       <DataSourceBasicInfo
-        :class="{ '!border-none': isEdit }"
         v-model="formModel.name"
       />
-      <Row v-if="!isEdit" :title="$t('导入')" class="!shadow-none !border-b-0 !mb-[24px]">
+      <Row v-if="!isEdit" :title="$t('导入')">
         <div class="mb-[16px] w-[560px]">
           <ConflictTips
             type="alert"
@@ -27,9 +27,9 @@
             class="mt-[16px]"
           />
         </div>
-        <ExcelUpload v-model="uploadFile" class="w-[560px]" />
+        <ExcelUpload v-model="uploadFile" class="mb-[24px] w-[560px]" />
       </Row>
-      <div class="btn">
+      <div class="data-source-footer-btn !border-t-0">
         <bk-button
           theme="primary"
           class="mr8"
@@ -175,16 +175,3 @@ onMounted(async () => {
   }
 });
 </script>
-
-<style lang="less" scoped>
-.btn {
-  position: relative;
-  padding: 0 0 24px 24px;
-  margin-top: -24px;
-  background-color: #fff;
-
-  button {
-    min-width: 88px;
-  }
-}
-</style>

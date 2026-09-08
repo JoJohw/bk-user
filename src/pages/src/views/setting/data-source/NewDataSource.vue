@@ -209,11 +209,5 @@ onUnmounted(() => {
       margin: auto;
     }
   }
-
-  .data-source-name-row {
-    margin-bottom: 0;
-    border-bottom: 1px solid #EAEBF0;
-    box-shadow: none;
-  }
 }
 </style>

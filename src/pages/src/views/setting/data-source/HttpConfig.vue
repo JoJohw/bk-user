@@ -6,6 +6,7 @@
   >
     <bk-form
       v-if="props.curStep === 1 && serverConfigData.plugin_id"
+      class="flex flex-col divide-y divide-[#EAEBF0]"
       form-type="vertical"
       ref="formRef1"
       :model="serverConfigData"
@@ -157,7 +158,7 @@
           </bk-form-item>
         </div>
       </Row>
-      <div class="btn">
+      <div class="data-source-footer-btn !border-t-0">
         <div>
           <bk-button
             class="mr-[8px]"
@@ -187,6 +188,7 @@
     </bk-form>
     <bk-form
       v-else
+      class="flex flex-col divide-y divide-[#EAEBF0]"
       form-type="vertical"
       ref="formRef2"
       :model="fieldSettingData"
@@ -243,7 +245,7 @@
           :disabled="isEdit"
         />
       </Row>
-      <div class="btn">
+      <div class="data-source-footer-btn !border-t-0">
         <bk-button class="mr8" @click="handleLastStep">{{ $t('上一步') }}</bk-button>
         <bk-button theme="primary" class="mr8" :loading="submitLoading" @click="handleSubmit">
           {{ isEdit ? $t('保存') : $t('提交') }}
@@ -767,25 +769,7 @@ const handleCancel = () => {
   }
 }
 
-.row-wrapper {
-  padding: 0 24px;
-  margin-bottom: 0;
-  border-bottom: 1px solid #EAEBF0;
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.btn {
-  position: relative;
-  padding: 0px 0 24px 24px;
-  background-color: #fff;
-
-  button {
-    min-width: 88px;
-  }
-
+.data-source-footer-btn {
   .connection-alert {
     width: 100%;
     margin-top: 8px;

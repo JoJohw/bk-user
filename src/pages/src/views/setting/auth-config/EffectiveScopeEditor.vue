@@ -1,5 +1,5 @@
 <template>
-  <Row :title="$t('生效范围')">
+  <Row :title="$t('生效范围')" class="!pb-[8px]">
     <bk-form-item
       :label="$t('数据源')"
       required

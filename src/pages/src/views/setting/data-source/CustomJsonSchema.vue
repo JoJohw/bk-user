@@ -14,7 +14,7 @@
         :plugins-config="jsonSchema"
         class="json-schema-form"
         @change-plugin-config="changePluginConfig" />
-      <div class="btn">
+      <div class="data-source-footer-btn !border-t-0">
         <div>
           <bk-button
             class="mr-[8px]"
@@ -44,6 +44,7 @@
     </template>
     <bk-form
       v-else
+      class="flex flex-col divide-y divide-[#EAEBF0]"
       form-type="vertical"
       ref="formRef2"
       :model="fieldSettingData"
@@ -90,7 +91,7 @@
           </bk-select>
         </bk-form-item>
       </Row>
-      <Row :title="$t('冲突配置')" class="!shadow-none !border-b-0">
+      <Row :title="$t('冲突配置')">
         <template #header>
           <ConflictTips :has-other-data-source="hasOtherDataSource" />
         </template>
@@ -100,7 +101,7 @@
           :disabled="isEdit"
         />
       </Row>
-      <div class="btn">
+      <div class="data-source-footer-btn !border-t-0">
         <bk-button class="mr8" @click="handleLastStep">{{ $t('上一步') }}</bk-button>
         <bk-button theme="primary" class="mr8" :loading="submitLoading" @click="handleSubmit">
           {{ isEdit ? $t('保存') : $t('提交') }}
@@ -517,24 +518,7 @@ onMounted(async () => {
     }
   }
 
-  .row-wrapper {
-    padding: 0 24px;
-    margin-bottom: 0;
-    border-bottom: 1px solid #EAEBF0;
-
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-  .btn {
-    position: relative;
-    padding: 0px 0 24px 24px;
-    background-color: #fff;
-
-    button {
-      min-width: 88px;
-    }
-
+  .data-source-footer-btn {
     .connection-alert {
       width: 100%;
       margin-top: 8px;
