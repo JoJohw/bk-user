@@ -7,7 +7,7 @@ import type {
   DataSourcePluginsItemData,
   DataSourceUsersParams,
   DataSourceUsersResult,
-  DeleteDataSourcesParams,
+  DeleteDataSourceParams,
   DepartmentsParams,
   GeneratePasswordParams,
   GetDataSourceListParams,
@@ -136,7 +136,7 @@ export const putUsersPassword = (params: ResetPasswordParams) => http.put(`/api/
 /**
  * 重置数据源
  */
-export const deleteDataSources = (params: DeleteDataSourcesParams) => http.delete(`/api/v3/web/data-sources/${params.id}/`, params);
+export const deleteDataSource = (params: DeleteDataSourceParams) => http.delete(`/api/v3/web/data-sources/${params.id}/`, params);
 
 /**
  * 数据源关联资源信息

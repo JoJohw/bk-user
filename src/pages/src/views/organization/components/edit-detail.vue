@@ -196,9 +196,8 @@ const changeTelError = (value: boolean) => {
   telError.value = value;
 };
 const getOptionalDepartmentsList = (value = '') => {
-  optionalDepartmentsList({
+  optionalDepartmentsList(props.dataSourceId, {
     keyword: value,
-    data_source_id: props.dataSourceId,
   }).then((res) => {
     const dataMap = new Map();
     res.data.forEach((item) => {
@@ -219,9 +218,8 @@ const getOptionalDepartmentsList = (value = '') => {
     });
 };
 const getOptionalLeaderList = (value = '') => {
-  optionalLeaderList({
+  optionalLeaderList(props.dataSourceId, {
     keyword: value, exclude_user_id: formData.id,
-    data_source_id: props.dataSourceId,
   }).then((res) => {
     leaderList.value = res.data;
   })
